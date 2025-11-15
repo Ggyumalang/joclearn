@@ -2,8 +2,11 @@ package jocture.joclearn.member;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MemberTest {
 
@@ -12,16 +15,38 @@ class MemberTest {
 
     @BeforeEach
     void setUp() {
-        passwordEncoder = new PasswordEncoder() {
-            @Override public String encode(String rawPassword) {
+        this.passwordEncoder = new PasswordEncoder() {
+            @Override
+            public String encode(String rawPassword) {
                 return rawPassword.toUpperCase();
             }
 
-            @Override public boolean matches(String rawPassword, String encodedPassword) {
+            @Override
+            public boolean matches(String rawPassword, String encodedPassword) {
                 return encode(rawPassword).equals(encodedPassword);
             }
         };
-        member = Member.create("hgkim", "hgkim@abc.com", "abcd1234", passwordEncoder);
+        this.member = Member.create("jjlim", "jjlim@abc.com", "abcd1234", passwordEncoder);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "JJ", "Lim", "123456789012345678901",
+        ".jocture", "_jocture", "-jocture",
+        "jocture*", "joc ture"
+    })
+    void create_wrongNickname(String nickname) {
+        assertThatThrownBy(() -> Member.create(nickname, "jjlim@abc.com", "abcd1234", passwordEncoder))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "jocture", "@abc.com", "j@a.c"
+    })
+    void create_wrongEmail(String email) {
+        assertThatThrownBy(() -> Member.create("jjlim", email, "abcd1234", passwordEncoder))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -45,15 +70,12 @@ class MemberTest {
     void changePassword() {
         String password = "jocture7890";
         member.changePassword(password, passwordEncoder);
-
         assertThat(member.getPasswordHash()).isEqualTo(password.toUpperCase());
     }
 
     @Test
     void verifyPassword() {
-        String password = "abcd1234";
-        boolean result = member.verifyPassword(password, passwordEncoder);
-
+        boolean result = member.verifyPassword("abcd1234", passwordEncoder);
         assertThat(result).isTrue();
     }
 }
