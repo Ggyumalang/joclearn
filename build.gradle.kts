@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
+    id("java-test-fixtures")
 }
 
 group = "jocture"
@@ -24,6 +25,7 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "java-test-fixtures")
 
     repositories {
         mavenCentral()
@@ -34,6 +36,7 @@ subprojects {
         annotationProcessor("org.projectlombok:lombok")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testFixturesImplementation("org.springframework.boot:spring-boot-starter-test")
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
@@ -62,16 +65,20 @@ project(":modules:application") {
         implementation(project(":modules:domain"))
 
         testImplementation(project(":modules:app-boot"))
+        testImplementation(testFixtures(project(":modules:infra")))
     }
 }
 
 project(":modules:domain") {
     dependencies {
+        testImplementation(testFixtures(project(":modules:infra")))
     }
 }
 
 project(":modules:infra") {
     dependencies {
         implementation(project(":modules:domain"))
+
+        testFixturesImplementation(project(":modules:domain"))
     }
 }

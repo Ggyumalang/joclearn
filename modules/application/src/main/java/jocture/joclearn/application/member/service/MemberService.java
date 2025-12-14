@@ -30,7 +30,10 @@ public class MemberService implements MemberReader, MemberWriter {
     @Transactional
     public Member joinMember(MemberJoinRequest request) {
         Member member = request.toEntity(passwordEncoder);
-        return memberRepository.save(member);
+        System.out.println("save() 호출 전");
+        Member savedMember = memberRepository.save(member);
+        System.out.println("save() 호출 후");
+        return savedMember;
     }
 
     @Override
