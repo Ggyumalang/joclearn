@@ -20,17 +20,18 @@ public class Member {
     private Integer id;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "nickname"))
+    @AttributeOverride(name = "value", column = @Column(name = "nickname", unique = true))
     private Nickname nickname;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "email"))
+    @AttributeOverride(name = "value", column = @Column(name = "email", unique = true))
     private Email email;
 
     @Column(name = "password_hash")
     private String passwordHash;
 
     @Column(name = "member_status")
+    @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
     private Member(String nickname, String email, String passwordHash, MemberStatus status) {
