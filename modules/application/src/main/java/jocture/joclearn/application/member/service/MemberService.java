@@ -3,6 +3,7 @@ package jocture.joclearn.application.member.service;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import jocture.joclearn.application.member.data.dto.MemberJoinRequest;
+import jocture.joclearn.application.member.data.dto.MemberResponse;
 import jocture.joclearn.domain.common.exception.NotFoundException;
 import jocture.joclearn.domain.member.Member;
 import jocture.joclearn.domain.member.MemberRepository;
@@ -35,6 +36,13 @@ public class MemberService implements MemberReader, MemberWriter {
         Member savedMember = memberRepository.save(member);
         System.out.println("save() 호출 후");
         return savedMember;
+    }
+
+    @Override
+    public MemberResponse joinMember2(MemberJoinRequest request) {
+        Member member = request.toEntity(passwordEncoder);
+        Member savedMember = memberRepository.save(member);
+        return MemberResponse.of(savedMember);
     }
 
     @Override
